@@ -96,6 +96,8 @@ PRIVATE_KEY=tu_clave_privada_metamask
 
 ## Instalación
 
+**Importante:** Después de clonar el repositorio, cada desarrollador debe instalar las dependencias de cada módulo de forma individual para asegurar un entorno de trabajo consistente y evitar problemas con `node_modules`.
+
 Sigue estos pasos para instalar las dependencias de cada parte del proyecto:
 
 1.  **Clonar el repositorio:**
