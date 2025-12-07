@@ -1,7 +1,7 @@
-import { useState } from 'react';
+import { useState } from "react";
 
 function QueryForm({ contract }) {
-  const [tokenId, setTokenId] = useState('');
+  const [tokenId, setTokenId] = useState("");
   const [documentData, setDocumentData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -24,7 +24,7 @@ function QueryForm({ contract }) {
         cid: data[0],
         documentHash: data[1],
         owner: data[2],
-        exists: data[0] !== '' // Simple check if CID is not empty
+        exists: data[0] !== "", // Simple check if CID is not empty
       });
     } catch (err) {
       console.error("Error al consultar el documento:", err);
@@ -37,11 +37,16 @@ function QueryForm({ contract }) {
   return (
     <form onSubmit={handleQuery} className="space-y-4">
       <div>
-        <label htmlFor="tokenId" className="block text-sm font-medium text-gray-300">Token ID</label>
+        <label
+          htmlFor="tokenId"
+          className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+        >
+          Token ID
+        </label>
         <input
           type="text"
           id="tokenId"
-          className="mt-1 block w-full p-2 border border-gray-600 rounded-md shadow-sm bg-gray-700 text-white focus:ring-blue-500 focus:border-blue-500"
+          className="mt-1 block w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-blue-500 focus:border-blue-500"
           value={tokenId}
           onChange={(e) => setTokenId(e.target.value)}
           disabled={loading}
@@ -56,24 +61,34 @@ function QueryForm({ contract }) {
       </button>
 
       {documentData && (
-        <div className="mt-4 p-4 bg-gray-700 rounded-md">
-          <h3 className="text-lg font-semibold text-blue-300">Detalles del Documento</h3>
+        <div className="mt-4 p-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md shadow">
+          <h3 className="text-lg font-semibold text-blue-600 dark:text-blue-300">
+            Detalles del Documento
+          </h3>
           {documentData.exists ? (
             <>
-              <p><strong>CID:</strong> {documentData.cid}</p>
-              <p><strong>Hash del Documento:</strong> {documentData.documentHash}</p>
-              <p><strong>Propietario:</strong> {documentData.owner}</p>
-              {documentData.cid && !documentData.cid.startsWith('local-') ? (
+              <p>
+                <strong>CID:</strong> {documentData.cid}
+              </p>
+              <p>
+                <strong>Hash del Documento:</strong> {documentData.documentHash}
+              </p>
+              <p>
+                <strong>Propietario:</strong> {documentData.owner}
+              </p>
+              {documentData.cid && !documentData.cid.startsWith("local-") ? (
                 <a
                   href={`https://ipfs.io/ipfs/${documentData.cid}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-blue-400 hover:underline"
+                  className="text-blue-600 dark:text-blue-300 hover:underline"
                 >
                   Ver Metadatos en IPFS
                 </a>
               ) : (
-                <p className="text-yellow-300">Metadatos guardados localmente en modo demo.</p>
+                <p className="text-yellow-600 dark:text-yellow-300">
+                  Metadatos guardados localmente en modo demo.
+                </p>
               )}
             </>
           ) : (
@@ -82,7 +97,7 @@ function QueryForm({ contract }) {
         </div>
       )}
 
-      {error && <p className="mt-4 text-red-400 text-sm">Error: {error}</p>}
+      {error && <p className="mt-4 text-red-600 text-sm">Error: {error}</p>}
     </form>
   );
 }

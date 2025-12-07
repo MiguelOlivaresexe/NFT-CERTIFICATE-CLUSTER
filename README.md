@@ -179,15 +179,25 @@ El frontend se ejecutará en `http://localhost:5173` (o el puerto que Vite asign
 2.  Conecta tu cartera de MetaMask a la aplicación.
 3.  Podrás mintear nuevos documentos y consultar documentos existentes.
 
-### Modo de Administrador (Simulado)
+## Instrucciones para la Demo
 
-Para acceder al panel de administración y la funcionalidad de edición de documentos en un entorno simulado (sin necesidad de una blockchain real o MetaMask):
+Para una demostración rápida de las funcionalidades de la aplicación, puedes utilizar el modo de administrador simulado.
 
-1.  En la página de inicio de sesión, usa las siguientes credenciales:
-    -   **Usuario:** `admin`
-    -   **Contraseña:** `123`
-2.  Al iniciar sesión con estas credenciales, la aplicación entrará en un "modo demo" donde los datos se guardan localmente en el navegador.
-3.  Tendrás acceso al `AdminPanel` para crear y editar documentos.
+1.  **Asegúrate de que el frontend y el backend estén en ejecución.**
+    *   Frontend: `http://localhost:5173`
+    *   Backend: `http://localhost:5000`
+2.  **Accede a la aplicación:** Abre tu navegador y ve a `http://localhost:5173`.
+3.  **Inicio de Sesión como Administrador (Simulado):**
+    *   En la página de inicio de sesión, utiliza las siguientes credenciales:
+        *   **Usuario:** `admin`
+        *   **Contraseña:** `123`
+    *   Al iniciar sesión con estas credenciales, la aplicación entrará en un "modo demo" donde los datos se guardan localmente en el navegador (no se interactúa con una blockchain real).
+    *   Tendrás acceso al `AdminPanel` para crear y editar documentos, así como las funcionalidades de usuario normal (mintear y consultar).
+4.  **Cerrar Sesión:** Para volver a la pantalla de inicio de sesión, haz clic en el botón "Cerrar Sesión" en la esquina superior derecha.
+5.  **Solución de Problemas (Caché del Navegador):** Si después de iniciar sesión o cerrar sesión la interfaz no se actualiza correctamente, intenta realizar un "hard refresh" (`Ctrl + Shift + R` o `Ctrl + F5` en Windows/Linux, `Cmd + Shift + R` en Mac) para limpiar la caché del navegador. Si el problema persiste y no ves la pantalla de inicio de sesión, es posible que un token antiguo esté en el `localStorage`. Para solucionarlo:
+    *   Abre las Herramientas de Desarrollador (F12).
+    *   Ve a la pestaña "Application" -> "Local Storage" -> `http://localhost:5173`.
+    *   Elimina el elemento con la clave "token" y recarga la página.
 
 ---
 

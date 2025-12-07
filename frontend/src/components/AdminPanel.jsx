@@ -1,17 +1,17 @@
-import { useState } from 'react';
+import { useState } from "react";
 
 function AdminPanel({ contract, account }) {
-  const [tokenIdBurn, setTokenIdBurn] = useState('');
-  const [tokenIdTransfer, setTokenIdTransfer] = useState('');
-  const [toAddressTransfer, setToAddressTransfer] = useState('');
-  const [message, setMessage] = useState('');
+  const [tokenIdBurn, setTokenIdBurn] = useState("");
+  const [tokenIdTransfer, setTokenIdTransfer] = useState("");
+  const [toAddressTransfer, setToAddressTransfer] = useState("");
+  const [message, setMessage] = useState("");
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
 
   const handleBurn = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setMessage('');
+    setMessage("");
     setError(null);
 
     if (!tokenIdBurn) {
@@ -23,8 +23,10 @@ function AdminPanel({ contract, account }) {
     try {
       const transaction = await contract.burnDocument(tokenIdBurn);
       await transaction.wait();
-      setMessage(`Documento con Token ID ${tokenIdBurn} quemado exitosamente! Transacción: ${transaction.hash}`);
-      setTokenIdBurn('');
+      setMessage(
+        `Documento con Token ID ${tokenIdBurn} quemado exitosamente! Transacción: ${transaction.hash}`,
+      );
+      setTokenIdBurn("");
     } catch (err) {
       console.error("Error al quemar el documento:", err);
       setError(`Error al quemar el documento: ${err.message || err}`);
@@ -36,21 +38,29 @@ function AdminPanel({ contract, account }) {
   const handleTransfer = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setMessage('');
+    setMessage("");
     setError(null);
 
     if (!tokenIdTransfer || !toAddressTransfer) {
-      setError("Por favor, introduce un Token ID y una dirección de destino para transferir.");
+      setError(
+        "Por favor, introduce un Token ID y una dirección de destino para transferir.",
+      );
       setLoading(false);
       return;
     }
 
     try {
-      const transaction = await contract.safeTransferOwner(account, toAddressTransfer, tokenIdTransfer);
+      const transaction = await contract.safeTransferOwner(
+        account,
+        toAddressTransfer,
+        tokenIdTransfer,
+      );
       await transaction.wait();
-      setMessage(`Documento con Token ID ${tokenIdTransfer} transferido exitosamente a ${toAddressTransfer}! Transacción: ${transaction.hash}`);
-      setTokenIdTransfer('');
-      setToAddressTransfer('');
+      setMessage(
+        `Documento con Token ID ${tokenIdTransfer} transferido exitosamente a ${toAddressTransfer}! Transacción: ${transaction.hash}`,
+      );
+      setTokenIdTransfer("");
+      setToAddressTransfer("");
     } catch (err) {
       console.error("Error al transferir el documento:", err);
       setError(`Error al transferir el documento: ${err.message || err}`);
@@ -62,10 +72,17 @@ function AdminPanel({ contract, account }) {
   return (
     <div className="space-y-8">
       <div className="bg-gray-700 p-6 rounded-lg shadow-md">
-        <h3 className="text-xl font-semibold mb-4 text-red-300">Quemar Documento (Burn)</h3>
+        <h3 className="text-xl font-semibold mb-4 text-red-300">
+          Quemar Documento (Burn)
+        </h3>
         <form onSubmit={handleBurn} className="space-y-4">
           <div>
-            <label htmlFor="tokenIdBurn" className="block text-sm font-medium text-gray-300">Token ID a Quemar</label>
+            <label
+              htmlFor="tokenIdBurn"
+              className="block text-sm font-medium text-gray-300"
+            >
+              Token ID a Quemar
+            </label>
             <input
               type="text"
               id="tokenIdBurn"
@@ -86,10 +103,17 @@ function AdminPanel({ contract, account }) {
       </div>
 
       <div className="bg-gray-700 p-6 rounded-lg shadow-md">
-        <h3 className="text-xl font-semibold mb-4 text-green-300">Transferir Propiedad (Safe Transfer)</h3>
+        <h3 className="text-xl font-semibold mb-4 text-green-300">
+          Transferir Propiedad (Safe Transfer)
+        </h3>
         <form onSubmit={handleTransfer} className="space-y-4">
           <div>
-            <label htmlFor="tokenIdTransfer" className="block text-sm font-medium text-gray-300">Token ID a Transferir</label>
+            <label
+              htmlFor="tokenIdTransfer"
+              className="block text-sm font-medium text-gray-300"
+            >
+              Token ID a Transferir
+            </label>
             <input
               type="text"
               id="tokenIdTransfer"
@@ -100,7 +124,12 @@ function AdminPanel({ contract, account }) {
             />
           </div>
           <div>
-            <label htmlFor="toAddressTransfer" className="block text-sm font-medium text-gray-300">Dirección de Destino</label>
+            <label
+              htmlFor="toAddressTransfer"
+              className="block text-sm font-medium text-gray-300"
+            >
+              Dirección de Destino
+            </label>
             <input
               type="text"
               id="toAddressTransfer"

@@ -1,14 +1,15 @@
-import { useState } from 'react';
-import { ethers } from 'ethers';
-import axios from 'axios'; // Importar axios
-import { sha256 } from '../utils/hash';
-import { uploadJsonToIpfs } from '../utils/ipfs';
+import { useState } from "react";
+import { ethers } from "ethers";
+import axios from "axios"; // Importar axios
+import { sha256 } from "../utils/hash";
+import { uploadJsonToIpfs } from "../utils/ipfs";
+import { getApiErrorMessage } from "../utils/apiError";
 
 function MintForm({ contract, account }) {
   const [file, setFile] = useState(null);
-  const [documentName, setDocumentName] = useState('');
+  const [documentName, setDocumentName] = useState("");
   const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState('');
+  const [message, setMessage] = useState("");
   const [error, setError] = useState(null);
 
   const handleFileChange = (e) => {
@@ -18,11 +19,13 @@ function MintForm({ contract, account }) {
   const handleMint = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setMessage('');
+    setMessage("");
     setError(null);
 
     if (!file || !documentName) {
-      setError("Por favor, selecciona un archivo y proporciona un nombre para el documento.");
+      setError(
+        "Por favor, selecciona un archivo y proporciona un nombre para el documento.",
+      );
       setLoading(false);
       return;
     }
@@ -50,14 +53,20 @@ function MintForm({ contract, account }) {
 
       // 4. Mintear el NFT
       setMessage("Minteando el NFT...");
-      const transaction = await contract.mintDocument(account, ipfsCid, documentHash);
+      const transaction = await contract.mintDocument(
+        account,
+        ipfsCid,
+        documentHash,
+      );
       await transaction.wait();
-      setMessage(`NFT minteado exitosamente! Transacción: ${transaction.hash}`);
+      setMessage(
+        `NFT minteado exitosamente! Token ID: ${transaction.tokenId}. Transacción: ${transaction.hash}`,
+      );
       setFile(null);
-      setDocumentName('');
+      setDocumentName("");
     } catch (err) {
       console.error("Error al mintear el documento:", err);
-      setError(`Error al mintear el documento: ${err.message || err}`);
+      setError(getApiErrorMessage(err));
     } finally {
       setLoading(false);
     }
@@ -66,22 +75,32 @@ function MintForm({ contract, account }) {
   return (
     <form onSubmit={handleMint} className="space-y-4">
       <div>
-        <label htmlFor="documentName" className="block text-sm font-medium text-gray-300">Nombre del Documento</label>
+        <label
+          htmlFor="documentName"
+          className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+        >
+          Nombre del Documento
+        </label>
         <input
           type="text"
           id="documentName"
-          className="mt-1 block w-full p-2 border border-gray-600 rounded-md shadow-sm bg-gray-700 text-white focus:ring-blue-500 focus:border-blue-500"
+          className="mt-1 block w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-blue-500 focus:border-blue-500"
           value={documentName}
           onChange={(e) => setDocumentName(e.target.value)}
           disabled={loading}
         />
       </div>
       <div>
-        <label htmlFor="documentFile" className="block text-sm font-medium text-gray-300">Seleccionar Documento</label>
+        <label
+          htmlFor="documentFile"
+          className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+        >
+          Seleccionar Documento
+        </label>
         <input
           type="file"
           id="documentFile"
-          className="mt-1 block w-full text-sm text-gray-400
+          className="mt-1 block w-full text-sm text-gray-600 dark:text-gray-300
             file:mr-4 file:py-2 file:px-4
             file:rounded-full file:border-0
             file:text-sm file:font-semibold
@@ -99,8 +118,8 @@ function MintForm({ contract, account }) {
         {loading ? "Minteando..." : "Mintear Documento"}
       </button>
 
-      {message && <p className="mt-4 text-green-400 text-sm">{message}</p>}
-      {error && <p className="mt-4 text-red-400 text-sm">Error: {error}</p>}
+      {message && <p className="mt-4 text-green-600 dark:text-green-400 text-sm">{message}</p>}
+      {error && <p className="mt-4 text-red-600 dark:text-red-400 text-sm">Error: {error}</p>}
     </form>
   );
 }

@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 const DocumentSchema = new mongoose.Schema({
   tokenId: {
@@ -8,7 +8,7 @@ const DocumentSchema = new mongoose.Schema({
   },
   owner: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
+    ref: "User",
     required: true,
   },
   mintedAt: {
@@ -17,4 +17,4 @@ const DocumentSchema = new mongoose.Schema({
   },
 });
 
-module.exports = mongoose.model('Document', DocumentSchema);
+module.exports = mongoose.model("Document", DocumentSchema);
