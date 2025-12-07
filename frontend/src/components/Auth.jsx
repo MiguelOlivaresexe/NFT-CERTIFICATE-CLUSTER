@@ -3,6 +3,7 @@ import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline"; // Importar
 import axios from "axios";
 import { getApiErrorMessage } from "../utils/apiError";
 import { Link, useNavigate } from "react-router-dom";
+import AdminDashboard from "./AdminDashboard";
 
 const Auth = ({ setAuthToken }) => {
   const [username, setUsername] = useState("");
@@ -10,6 +11,8 @@ const Auth = ({ setAuthToken }) => {
   const [message, setMessage] = useState("");
   const [showPassword, setShowPassword] = useState(false); // Nuevo estado para mostrar/ocultar contraseña
   const navigate = useNavigate();
+  const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+  const role = typeof window !== 'undefined' ? localStorage.getItem('role') : null;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -33,9 +36,13 @@ const Auth = ({ setAuthToken }) => {
     
 
     try {
-      const res = await axios.post("/api/auth/login", { username, password });
+      const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
+      const res = await axios.post(`${API_BASE}/api/auth/login`, { username, password });
       setAuthToken(res.data.token);
       localStorage.setItem("token", res.data.token);
+      if (res.data.role) {
+        localStorage.setItem('role', res.data.role);
+      }
       setMessage("Inicio de sesión exitoso.");
       navigate('/'); // Redirigir a la página principal después del login
     } catch (err) {
@@ -90,6 +97,16 @@ const Auth = ({ setAuthToken }) => {
         <Link to="/register" className="text-blue-600 hover:text-blue-700 font-bold focus:outline-none">Registrarse</Link>
       </p>
       {message && <p className="mt-4 text-center text-gray-700 dark:text-gray-300">{message}</p>}
+      <div className="mt-8">
+        <h3 className="text-xl font-semibold text-gray-800 dark:text-white mb-4 text-center">Dashboard General</h3>
+        {token && role !== 'admin' ? (
+          <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 bg-gray-50 dark:bg-gray-900">
+            <AdminDashboard isSimulated={false} />
+          </div>
+        ) : (
+          <p className="text-center text-gray-600 dark:text-gray-400">Inicia sesión para ver el Dashboard General.</p>
+        )}
+      </div>
     </div>
   );
 };

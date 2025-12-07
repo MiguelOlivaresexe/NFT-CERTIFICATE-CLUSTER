@@ -28,7 +28,8 @@ const RegisterForm = () => {
     }
 
     try {
-      const res = await axios.post('/api/auth/register', { username, password });
+      const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
+      const res = await axios.post(`${API_BASE}/api/auth/register`, { username, password });
       setMessage('Registro exitoso. Redirigiendo a login...');
       setTimeout(() => {
         navigate('/login');

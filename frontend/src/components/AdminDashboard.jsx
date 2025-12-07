@@ -6,41 +6,32 @@ function AdminDashboard({ isSimulated }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  const fetchAllDocuments = async () => {
+    try {
+      const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
+      const res = await axios.get(`${API_BASE}/api/fake-smart-contracts`);
+      setDocuments(res.data);
+    } catch (err) {
+      console.error('Error al obtener todos los documentos:', err);
+      setError('Error al cargar los documentos.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchAllDocuments = async () => {
-      if (isSimulated) {
-        // En modo simulado, no hacemos llamadas al backend para documentos
-        setDocuments([]); // O podrías cargar datos de prueba aquí
-        setLoading(false);
-        return;
-      }
+    fetchAllDocuments();
 
-      try {
-        const token = localStorage.getItem('token');
-        if (!token) {
-          setError('No hay token de autenticación. Por favor, inicia sesión.');
-          setLoading(false);
-          return;
-        }
-
-        const config = {
-          headers: {
-            'x-auth-token': token,
-          },
-        };
-
-        const res = await axios.get('/api/documents/all', config);
-        setDocuments(res.data);
-      } catch (err) {
-        console.error('Error al obtener todos los documentos:', err);
-        setError('Error al cargar los documentos. Asegúrate de tener permisos de administrador.');
-      } finally {
-        setLoading(false);
-      }
+    const onMinted = () => {
+      setLoading(true);
+      fetchAllDocuments();
     };
 
-    fetchAllDocuments();
-  }, []);
+    window.addEventListener('documentMinted', onMinted);
+    return () => {
+      window.removeEventListener('documentMinted', onMinted);
+    };
+  }, [isSimulated]);
 
   if (loading) {
     return <div className="text-gray-700 dark:text-gray-300">Cargando todos los documentos...</div>;
@@ -51,33 +42,35 @@ function AdminDashboard({ isSimulated }) {
   }
 
   return (
-    <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-6 rounded-lg shadow-2xl">
+    <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg transition-colors duration-300">
       <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-4">Dashboard de Administración - Todos los Documentos</h2>
       {Array.isArray(documents) && documents.length === 0 ? (
-        <p className="text-gray-600">No hay documentos en el sistema.</p>
+        <p className="text-gray-600 dark:text-gray-400">No hay documentos en el sistema.</p>
       ) : (
         <div className="overflow-x-auto">
-          <table className="min-w-full bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+          <table className="min-w-full bg-gray-100 dark:bg-gray-700 rounded-lg">
             <thead>
               <tr>
-                <th className="py-2 px-4 bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 text-left text-sm font-semibold rounded-tl-lg">Token ID</th>
-                <th className="py-2 px-4 bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 text-left text-sm font-semibold">Propietario</th>
-                <th className="py-2 px-4 bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 text-left text-sm font-semibold">CID IPFS</th>
-                <th className="py-2 px-4 bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 text-left text-sm font-semibold rounded-tr-lg">Fecha de Acuñación</th>
+                <th className="py-2 px-4 bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-white text-left text-sm font-semibold rounded-tl-lg">ID MongoDB</th>
+                <th className="py-2 px-4 bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-white text-left text-sm font-semibold">Token ID</th>
+                <th className="py-2 px-4 bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-white text-left text-sm font-semibold">Propietario</th>
+                <th className="py-2 px-4 bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-white text-left text-sm font-semibold">CID IPFS</th>
+                <th className="py-2 px-4 bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-white text-left text-sm font-semibold rounded-tr-lg">Fecha de Acuñación</th>
               </tr>
             </thead>
             <tbody>
               {Array.isArray(documents) && documents.map((doc) => (
-                <tr key={doc._id} className="border-b border-gray-200 dark:border-gray-700 last:border-b-0">
-                  <td className="py-2 px-4 text-gray-800 dark:text-gray-200">{doc.tokenId}</td>
-                  <td className="py-2 px-4 text-gray-800 dark:text-gray-200">{doc.owner}</td>
-                  <td className="py-2 px-4 text-gray-800 dark:text-gray-200">
+                <tr key={doc._id} className="border-b border-gray-200 dark:border-gray-600 last:border-b-0">
+                  <td className="py-2 px-4 text-gray-700 dark:text-gray-300">{doc._id}</td>
+                  <td className="py-2 px-4 text-gray-700 dark:text-gray-300">{doc.tokenId}</td>
+                  <td className="py-2 px-4 text-gray-700 dark:text-gray-300">{doc.owner}</td>
+                  <td className="py-2 px-4 text-gray-700 dark:text-gray-300">
                     {doc.cid ? (
                       <a
                         href={`https://ipfs.io/ipfs/${doc.cid}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-blue-600 dark:text-blue-300 hover:underline"
+                        className="text-blue-600 dark:text-blue-400 hover:underline"
                       >
                         {doc.cid}
                       </a>
@@ -85,7 +78,7 @@ function AdminDashboard({ isSimulated }) {
                       'N/A'
                     )}
                   </td>
-                  <td className="py-2 px-4 text-gray-800 dark:text-gray-200">{new Date(doc.mintedAt).toLocaleDateString()}</td>
+                  <td className="py-2 px-4 text-gray-700 dark:text-gray-300">{new Date(doc.createdAt || doc.updatedAt || Date.now()).toLocaleDateString()}</td>
                 </tr>
               ))}
             </tbody>

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import axios from "axios";
 
 function AdminPanel({ contract, account }) {
   const [tokenIdBurn, setTokenIdBurn] = useState("");
@@ -21,15 +22,13 @@ function AdminPanel({ contract, account }) {
     }
 
     try {
-      const transaction = await contract.burnDocument(tokenIdBurn);
-      await transaction.wait();
-      setMessage(
-        `Documento con Token ID ${tokenIdBurn} quemado exitosamente! Transacción: ${transaction.hash}`,
-      );
+      const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
+      await axios.delete(`${API_BASE}/api/fake-smart-contracts/${tokenIdBurn}`);
+      setMessage(`Documento con Token ID ${tokenIdBurn} eliminado.`);
       setTokenIdBurn("");
+      window.dispatchEvent(new CustomEvent("documentMinted"));
     } catch (err) {
-      console.error("Error al quemar el documento:", err);
-      setError(`Error al quemar el documento: ${err.message || err}`);
+      setError(`Error al eliminar: ${err.response?.data?.msg || err.message || err}`);
     } finally {
       setLoading(false);
     }
@@ -50,20 +49,16 @@ function AdminPanel({ contract, account }) {
     }
 
     try {
-      const transaction = await contract.safeTransferOwner(
-        account,
-        toAddressTransfer,
-        tokenIdTransfer,
-      );
-      await transaction.wait();
-      setMessage(
-        `Documento con Token ID ${tokenIdTransfer} transferido exitosamente a ${toAddressTransfer}! Transacción: ${transaction.hash}`,
-      );
+      const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
+      await axios.put(`${API_BASE}/api/fake-smart-contracts/${tokenIdTransfer}`, {
+        owner: toAddressTransfer,
+      });
+      setMessage(`Documento ${tokenIdTransfer} transferido a ${toAddressTransfer}.`);
       setTokenIdTransfer("");
       setToAddressTransfer("");
+      window.dispatchEvent(new CustomEvent("documentMinted"));
     } catch (err) {
-      console.error("Error al transferir el documento:", err);
-      setError(`Error al transferir el documento: ${err.message || err}`);
+      setError(`Error al transferir: ${err.response?.data?.msg || err.message || err}`);
     } finally {
       setLoading(false);
     }

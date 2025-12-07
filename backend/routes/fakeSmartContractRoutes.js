@@ -1,13 +1,14 @@
 const express = require("express");
 const router = express.Router();
 const FakeSmartContract = require("../models/FakeSmartContract");
+const sendEmail = require("../utils/emailService");
 
 // @route   POST api/fake-smart-contracts
 // @desc    Crear un nuevo contrato inteligente ficticio
 // @access  Public (para propósitos de demo)
 router.post("/", async (req, res, next) => {
   try {
-    const { tokenId, cid, documentHash, owner } = req.body;
+    const { tokenId, cid, documentHash, owner, recipientEmail, name } = req.body;
     const newContract = new FakeSmartContract({
       tokenId,
       cid,
@@ -15,6 +16,17 @@ router.post("/", async (req, res, next) => {
       owner,
     });
     const contract = await newContract.save();
+    if (recipientEmail) {
+      const ipfsLink = cid ? `https://ipfs.io/ipfs/${cid}` : "";
+      const subject = "Nuevo certificado generado";
+      const text = `Se ha generado un nuevo certificado.\nNombre: ${name || "Documento"}\nToken ID: ${tokenId}\nCID: ${cid || "N/A"}\nEnlace IPFS: ${ipfsLink}`;
+      const html = `<h1>Nuevo certificado generado</h1><p><strong>Nombre:</strong> ${name || "Documento"}</p><p><strong>Token ID:</strong> ${tokenId}</p><p><strong>CID:</strong> ${cid || "N/A"}</p>${ipfsLink ? `<p><a href="${ipfsLink}" target="_blank" rel="noopener">Ver en IPFS</a></p>` : ""}`;
+      try {
+        await sendEmail(recipientEmail, subject, text, html);
+      } catch (err) {
+        console.error("Error enviando correo del certificado:", err);
+      }
+    }
     res.status(201).json(contract);
   } catch (err) {
     next(err);

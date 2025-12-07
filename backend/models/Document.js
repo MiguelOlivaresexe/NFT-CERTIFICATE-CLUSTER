@@ -6,6 +6,9 @@ const DocumentSchema = new mongoose.Schema({
     required: true,
     unique: true,
   },
+  cid: {
+    type: String,
+  },
   owner: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",

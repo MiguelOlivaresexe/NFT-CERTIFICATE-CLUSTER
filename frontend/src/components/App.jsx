@@ -39,6 +39,10 @@ function App() {
   };
 
   useEffect(() => {
+    // Sync isAdmin from server-provided role stored in localStorage
+    const storedRole = typeof window !== 'undefined' ? localStorage.getItem('role') : null;
+    setIsAdmin(storedRole === 'admin');
+
     console.log("Current authToken:", authToken);
     const setupWallet = async (currentProvider) => {
       try {
@@ -189,6 +193,14 @@ function App() {
         <Route path="/login" element={<Auth setAuthToken={setAuthToken} />} />
         <Route path="/register" element={<RegisterForm />} />
         <Route
+          path="/dashboard"
+          element={authToken && !isAdmin ? (
+            <AdminDashboard isSimulated={isSimulated} />
+          ) : (
+            <Navigate to="/login" replace />
+          )}
+        />
+        <Route
           path="/*"
           element={authToken ? (
             <div className={theme === 'dark' ? 'dark' : ''}>
@@ -266,7 +278,7 @@ function App() {
                   <UserDocuments />
                 </section>
 
-                {isAdmin && (
+                {!isAdmin && (
                 <section id="admin-dashboard" className="mb-8">
                     <AdminDashboard isSimulated={isSimulated} />
                   </section>

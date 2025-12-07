@@ -1,4 +1,5 @@
 import { useState } from "react";
+import axios from "axios";
 
 function QueryForm({ contract }) {
   const [tokenId, setTokenId] = useState("");
@@ -19,16 +20,17 @@ function QueryForm({ contract }) {
     }
 
     try {
-      const data = await contract.tokenMetadata(tokenId);
+      const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
+      const res = await axios.get(`${API_BASE}/api/fake-smart-contracts/${tokenId}`);
+      const doc = res.data;
       setDocumentData({
-        cid: data[0],
-        documentHash: data[1],
-        owner: data[2],
-        exists: data[0] !== "", // Simple check if CID is not empty
+        cid: doc.cid,
+        documentHash: doc.documentHash,
+        owner: doc.owner,
+        exists: !!doc && !!doc.tokenId,
       });
     } catch (err) {
-      console.error("Error al consultar el documento:", err);
-      setError(`Error al consultar el documento: ${err.message || err}`);
+      setDocumentData({ exists: false });
     } finally {
       setLoading(false);
     }

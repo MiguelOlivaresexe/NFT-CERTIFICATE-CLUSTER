@@ -2,19 +2,39 @@ const express = require("express");
 const router = express.Router();
 const auth = require("../middleware/authMiddleware");
 const Document = require("../models/Document");
+const sendEmail = require("../utils/emailService");
 
 // @route   POST api/documents
 // @desc    Guardar un nuevo tokenId de documento
 // @access  Private
-router.post("/", auth, async (req, res) => {
-  const { tokenId } = req.body;
-  const newDocument = new Document({
-    tokenId,
-    owner: req.user.id,
-  });
+router.post("/", auth, async (req, res, next) => {
+  try {
+    const { tokenId, cid, recipientEmail, name } = req.body;
+    const newDocument = new Document({
+      tokenId,
+      cid,
+      owner: req.user.id,
+    });
 
-  const document = await newDocument.save();
-  res.json(document);
+    const document = await newDocument.save();
+
+    if (recipientEmail) {
+      const ipfsLink = cid ? `https://ipfs.io/ipfs/${cid}` : "";
+      const subject = "Nuevo certificado generado";
+      const text = `Se ha generado un nuevo certificado.\nNombre: ${name || "Documento"}\nToken ID: ${tokenId}\nCID: ${cid || "N/A"}\nEnlace IPFS: ${ipfsLink}`;
+      const html = `<h1>Nuevo certificado generado</h1><p><strong>Nombre:</strong> ${name || "Documento"}</p><p><strong>Token ID:</strong> ${tokenId}</p><p><strong>CID:</strong> ${cid || "N/A"}</p>${ipfsLink ? `<p><a href="${ipfsLink}" target="_blank" rel="noopener">Ver en IPFS</a></p>` : ""}`;
+      try {
+        await sendEmail(recipientEmail, subject, text, html);
+      } catch (err) {
+        console.error("Error enviando correo del certificado:", err);
+        // No fallar toda la request si el correo falla; continuar
+      }
+    }
+
+    res.json(document);
+  } catch (err) {
+    next(err);
+  }
 });
 
 // @route   GET api/documents
